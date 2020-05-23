@@ -18,7 +18,7 @@ description: >- # this means to ignore newlines until "baseurl:"
   This website is an experimental idea to build a community around making the best of a global pandemic.  The goal
   is to explore 91 ideas, datasets, designs, or the like and build something -- anything.  Join the community by creating
   and sharing your creation.
-baseurl: "" # the subpath of your site, e.g. /blog
+baseurl: "/91-DIVOC-UK" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 
 # Build settings
