@@ -35,5 +35,5 @@ js = f'_dateUpdated = "{date_str}";\n' +\
      f'\n' +\
      f'$("#uk-updated").html("(Updated: {human_dt_str})");\n'
 
-with open("../uk-updated.js", "w") as out:
+with open("uk-updated.js", "w") as out:
   out.write(js)
