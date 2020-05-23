@@ -883,8 +883,6 @@ var render = function(chart) {
 
 var doRender = function(chart) {
 
-  console.log(chart.data);
-
   // Find data on all highlights
   var highlights = [ chart.highlight ];
   if (chart.extraHighlights) { highlights = highlights.concat( chart.extraHighlights ); }
