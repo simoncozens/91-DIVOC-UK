@@ -9,10 +9,7 @@ $(window).resize(function () {
   if (_rawData != null) {
     var new_width = $("#sizer").width();
     if (_client_width != new_width) {
-      render( charts['countries'] );
       render( charts['states'] );
-      render( charts['countries-normalized'] );
-      render( charts['states-normalized'] );
     }
   }
 });
@@ -36,13 +33,14 @@ var reducer_sum_with_key = function(result, value, key) {
   return result;
 };
 
-var reducer_byUSstate = function(result, value, key) {
+var reducer_byUKlea = function(result, value, key) {
   country = value["Country_Region"];
   state = value["Province_State"];
 
   if (state == "") { return result; }
-  if (country != "United States") { return result; }
+  if (value["Area type"] != "Upper tier local authority") { return result; }
   if (state.indexOf("Princess") != -1) { return result; }
+
 
   // Use the state name as key
   key = state;
@@ -82,41 +80,15 @@ function getCookie(cname) {
 // find default state value
 var stored;
 
-var defaultState = "New York";
+var defaultState = "Gloucestershire";
 if ((stored = getCookie("state")) != "") { defaultState = stored; }
-
-var defaultCountry = "United States";
-if ((stored = getCookie("country")) != "") { defaultCountry = stored; }
 
 
 // chart metadata
 var charts = {
-  'countries': {
-    self: 'countries',
-    reducer: reducer_byCountry,
-    reducer2: reducer_byUSstate,
-    scale: "log",
-    highlight: defaultCountry,
-    defaultHighlight: defaultCountry,
-    y0: 100,
-    xCap: 25,
-    id: "chart-countries",
-    normalizePopulation: false,
-    show: "25",
-    sort: function (d) { return -d.maxCases; },
-    dataSelection: 'cases',
-    showDelta: true,
-    avgData: 7,
-    dataSelection_y0: { 'active': 100, 'cases': 100, 'deaths': 10, 'recovered': 100, 'new-cases': 1 },
-    yAxisScale: 'fixed',
-    xMax: null, yMax: null, data: null,
-    trendline: "default",
-    dataRawSelection: "cases-daily-7",
-    xaxis: "right"
-  },
   'states': {
     self: 'states',
-    reducer: reducer_byUSstate,
+    reducer: reducer_byUKlea,
     scale: "log",
     highlight: defaultState,
     defaultHighlight: defaultState,
@@ -129,51 +101,7 @@ var charts = {
     dataSelection: 'cases',
     showDelta: true,
     avgData: 7,
-    dataSelection_y0: { 'active': 20, 'cases': 20, 'deaths': 5, 'recovered': 20, 'hospitalized': 1, 'tests': 1 },
-    yAxisScale: 'fixed',
-    xMax: null, yMax: null, data: null,
-    trendline: "default",
-    dataRawSelection: "cases-daily-7"
-  },
-
-  'countries-normalized': {
-    self: 'countries-normalized',
-    reducer: reducer_byCountry,
-    reducer2: reducer_byUSstate,
-    scale: "log",
-    highlight: defaultCountry,
-    defaultHighlight: defaultCountry,
-    y0: 1,
-    xCap: 25,
-    id: "chart-countries-normalized",
-    normalizePopulation: "country",
-    show: "25",
-    sort: function (d) { return -d.maxCases; },
-    dataSelection: 'cases',
-    showDelta: true,
-    avgData: 7,
-    dataSelection_y0: { 'active': 1, 'cases': 1, 'deaths': 1, 'recovered': 1 },
-    yAxisScale: 'fixed',
-    xMax: null, yMax: null, data: null,
-    trendline: "default",
-    dataRawSelection: "cases-daily-7"
-  },
-  'states-normalized': {
-    self: 'states-normalized',
-    reducer: reducer_byUSstate,
-    scale: "log",
-    highlight: defaultState,
-    defaultHighlight: defaultState,
-    y0: 1,
-    xCap: 40,
-    id: "chart-states-normalized",
-    normalizePopulation: "state",
-    show: "all",
-    sort: function (d) { return -d.maxCases; },
-    dataSelection: 'cases',
-    showDelta: true,
-    avgData: 7,
-    dataSelection_y0: { 'active': 1, 'cases': 1, 'deaths': 1, 'recovered': 1, 'hospitalized': 1, 'tests': 1 },
+    dataSelection_y0: { 'cases': 20, 'deaths': 5 },
     yAxisScale: 'fixed',
     xMax: null, yMax: null, data: null,
     trendline: "default",
@@ -394,21 +322,13 @@ var process_data = function(data, chart) {
   prep_data(chart);
 };
 
-var covidData_promise = d3.csv("jhu-data.csv?d=" + _reqStr, function (row) {
+var covidData_promise = d3.csv("uk-data.csv?d=" + _reqStr, function (row) {
   row["Active"] = +row["Active"];
   row["Confirmed"] = +row["Confirmed"];
   row["Recovered"] = +row["Recovered"];
   row["Deaths"] = +row["Deaths"];
-  row["People_Tested"] = +row["People_Tested"];
-  row["People_Hospitalized"] = +row["People_Hospitalized"];
   return row;
 });
-
-var populationData_promise = d3.csv("wikipedia-population.csv", function (row) {
-  row["Population"] = (+row["Population"]);
-  return row;
-});
-
 
 var _dataReady = false, _pageReady = false, _chartIdFirst;
 
@@ -439,19 +359,10 @@ var initialRender2 = function() {
 
 
 
-Promise.all([covidData_promise, populationData_promise])
+Promise.all([covidData_promise])
   .then(function(result) {
     data = result[0];
-    populationData = result[1];
-    
     _rawData = data;
-
-    _popData = {country: {}, state: {}};
-    for (var pop of populationData) {
-      if (pop.Country) { _popData.country[pop.Country] = pop.Population; }
-      if (pop.State) { _popData.state[pop.State] = pop.Population; }
-    }
-
     _dataReady = true;
     tryRender();
   })
@@ -868,7 +779,7 @@ var generateDataLabel = function(chart, title = false) {
 
     if (chart.showDelta) { dataLabel += " per Day"; }
 
-    if (chart.id.indexOf("state") != -1) { dataLabel += " by US States/Territories"; }
+    if (chart.id.indexOf("state") != -1) { dataLabel += " by UK Upper Tier Local Authority"; }
     if (chart.normalizePopulation) { dataLabel += ", normalized by population"; }
 
 
@@ -1354,7 +1265,7 @@ var doRender = function(chart) {
     .attr("y", height + 32)
     .attr("class", "text-credits")
     .attr("text-anchor", "end")
-    .text(`Data: Johns Hopkins CSSE; Updated: ${_dateUpdated}`);
+    .text(`Data: https://coronavirus.data.gov.uk; Updated: ${_dateUpdated}`);
 
 
   svg.append("a")
@@ -1366,7 +1277,7 @@ var doRender = function(chart) {
     .attr("text-anchor", "end")
     .style("font-size", "8px")
     .style("fill", "#aaa")
-    .text(`Interactive Visualization: https://91-DIVOC.com/ by @profwade_`);
+    .text(`Interactive Visualization: https://91-DIVOC.com/ by @profwade_; UK version by @simoncozens`);
 
 
   chart.data.sort(function (d1, d2) {
