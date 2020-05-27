@@ -100,12 +100,12 @@ var charts = {
     sort: function (d) { return -d.maxCases; },
     dataSelection: 'cases',
     showDelta: true,
-    avgData: 3,
+    avgData: 7,
     dataSelection_y0: { 'cases': 20, 'deaths': 5 },
     yAxisScale: 'fixed',
     xMax: null, yMax: null, data: null,
     trendline: "default",
-    dataRawSelection: "cases-daily-3"
+    dataRawSelection: "cases-daily-7"
   },
 };
 
@@ -616,18 +616,18 @@ var updateDataSelectionOptions = function(chart, value) {
   } else if (value == "tests-daily") {
     value = "tests";
     chart.showDelta = true;
-  } else if (value == "cases-daily-3") {
+  } else if (value == "cases-daily-7") {
     value = "cases";
     chart.showDelta = true;
-    chart.avgData = 3;
-  } else if (value == "deaths-daily-3") {
+    chart.avgData = 7;
+  } else if (value == "deaths-daily-7") {
     value = "deaths";
     chart.showDelta = true;
-    chart.avgData = 3;
-  } else if (value == "tests-daily-3") {
+    chart.avgData = 7;
+  } else if (value == "tests-daily-7") {
     value = "tests";
     chart.showDelta = true;
-    chart.avgData = 3;
+    chart.avgData = 7;
   }
   
 
