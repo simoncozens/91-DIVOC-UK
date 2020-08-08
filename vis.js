@@ -38,7 +38,7 @@ var reducer_byUKlea = function(result, value, key) {
   state = value["Province_State"];
 
   if (state == "") { return result; }
-  if (value["Area type"] != "Upper tier local authority") { return result; }
+  if (value["Area type"] != "utla") { return result; }
   if (state.indexOf("Princess") != -1) { return result; }
 
 
@@ -101,7 +101,7 @@ var charts = {
     dataSelection: 'cases',
     showDelta: true,
     avgData: 7,
-    dataSelection_y0: { 'cases': 20, 'deaths': 5 },
+    dataSelection_y0: { 'cases': 50, 'deaths': 5 },
     yAxisScale: 'fixed',
     xMax: null, yMax: null, data: null,
     trendline: "default",
@@ -840,7 +840,7 @@ var tip_html = function(chart) {
 
     let dateStr = "";
     let dateParts = d.date.split("-");
-    let date = new Date(parseInt(dateParts[2]), parseInt(dateParts[0]) - 1, parseInt(dateParts[1]));
+    let date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
 
     if (date instanceof Date) {
       dateStr = `${ date.toLocaleDateString('en-US', { weekday: 'long'}) }, `;
@@ -912,7 +912,7 @@ var doRender = function(chart) {
   } else {
     // left-align
     if (f && f.maxDay > maxDayRendered) {
-      maxDayRendered = f.maxDay + 3;
+      maxDayRendered = f.maxDay + 28;
     }
   }
 
@@ -939,7 +939,7 @@ var doRender = function(chart) {
     daysScale.domain([-maxDayRendered, 0])
       .range([0, width]);
   } else {
-    daysScale.domain([0, maxDayRendered])
+    daysScale.domain([0, maxDayRendered + 7])
       .range([0, width]);
   }
 
