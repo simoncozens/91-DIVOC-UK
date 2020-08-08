@@ -1,8 +1,9 @@
 # coding=utf-8
-
+import io
 import os
 from urllib.request import urlopen
 import pandas as pd
+import gzip
 from datetime import datetime
 now = datetime.now()
 
@@ -10,11 +11,15 @@ cases_url = "https://c19downloads.azureedge.net/downloads/csv/coronavirus-cases_
 deaths_url = "https://c19downloads.azureedge.net/downloads/csv/coronavirus-deaths_latest.csv"
 
 with urlopen(cases_url) as c:
+  if c.info().get('Content-Encoding') == 'gzip':
+      c = io.BytesIO(c.read())
+      c = gzip.GzipFile(fileobj=c)
+
   df1 = pd.read_csv(c)
 
-df1 = df1.drop(columns=["Previously reported daily cases",
-  'Change in daily cases',
-     'Previously reported cumulative cases', 'Change in cumulative cases',
+df1 = df1.drop(columns=[#"Previously reported daily cases",
+  #'Change in daily cases',
+  #   'Previously reported cumulative cases', 'Change in cumulative cases',
      'Cumulative lab-confirmed cases rate'])
 df1 = df1.rename(columns={'Specimen date':"Date",
   'Cumulative lab-confirmed cases':"Confirmed",
